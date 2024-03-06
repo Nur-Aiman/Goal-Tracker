@@ -256,7 +256,7 @@ function CurrentGoals() {
 
   return (
     <div className="max-w-4xl mx-auto p-8 relative" style={{ backgroundColor: '#222831', color: '#EEEEEE', minHeight: '100vh' }}>
-      <h1 className="text-4xl font-bold mb-4" onClick={navigateToHome} style={{ cursor: 'pointer', color: '#00ADB5' }}>Current Goals</h1>
+      <h1 className="text-4xl font-bold mb-4" onClick={navigateToHome} style={{ cursor: 'pointer', color: '#00ADB5' }}>Current <br /> Goals</h1>
       <div className="absolute top-8 right-8 space-x-4">
         <button className="bg-#00ADB5 hover:bg-#393E46 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out" onClick={handleAddActivity}>Add Activity</button>
       </div>
