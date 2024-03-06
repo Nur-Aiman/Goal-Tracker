@@ -7,7 +7,7 @@ var cors = require('cors');
 
 var corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = ['http://localhost:3000', ''];
+    const allowedOrigins = ['http://localhost:3000', 'https://goal-tracker-z1or.onrender.com'];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
