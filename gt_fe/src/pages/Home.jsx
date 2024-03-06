@@ -15,7 +15,7 @@ function Home() {
 
   return (
     <div className="max-w-4xl mx-auto p-8" style={{ backgroundColor: '#222831', color: '#EEEEEE', minHeight: '100vh'  }}>
-      <h1 className="text-4xl font-bold mb-4 text-center" style={{ color: '#EEEEEE' }}>Goal Tracker</h1>
+      <h1 className="text-4xl font-bold mb-4 text-center" style={{ color: '#F8DE22' }}>Goal Tracker</h1>
       <hr style={{ 
   border: '0',
   height: '2px',
