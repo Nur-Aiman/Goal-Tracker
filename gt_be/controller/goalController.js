@@ -528,6 +528,29 @@ module.exports = {
       client.release();
     }
   },
+
+  viewGoalsWithStartedActivitiesCount: async function(req, res) {
+    try {
+      const viewGoalsWithActivitiesQuery = `
+        SELECT g.id, g.goal, COUNT(a.id) FILTER (WHERE a.status = 'started') AS started_activities_count
+        FROM goals g
+        LEFT JOIN activities a ON g.id = a.associated_goal
+        GROUP BY g.id
+        ORDER BY g.id ASC;
+      `;
+  
+      const { rows } = await pool.query(viewGoalsWithActivitiesQuery);
+  
+      if (rows.length > 0) {
+        res.status(200).json(rows);
+      } else {
+        res.status(404).json({ message: 'No goals found' });
+      }
+    } catch (error) {
+      console.error('Error fetching goals with started activities count:', error.message);
+      res.status(500).json({ error: 'Error fetching goals with started activities count' });
+    }
+  },
   
   
 };

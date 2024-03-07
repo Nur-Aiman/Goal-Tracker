@@ -21,6 +21,7 @@ function CurrentGoals() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [selectedGoalName, setSelectedGoalName] = useState(null);
   const [selectedActivityId, setSelectedActivityId] = useState(null);
+  const [startedActivitiesCount, setStartedActivitiesCount] = useState({});
 
 
   const navigate = useNavigate();
@@ -46,6 +47,21 @@ function CurrentGoals() {
     });
   };
 
+  const fetchStartedActivitiesCount = () => {
+    fetch(`${HOST}/goal/goalsWithStartedActivitiesCount`)
+      .then((response) => response.json())
+      .then((data) => {
+  
+        const countMap = data.reduce((acc, item) => {
+          acc[item.id] = parseInt(item.started_activities_count, 10);
+          return acc;
+        }, {});
+        setStartedActivitiesCount(countMap);
+      })
+      .catch((error) => console.error('Error fetching started activities count:', error));
+  };
+  
+
   const currentYear = new Date().getFullYear();
 
   const handleActivityClick = (activityName, activityId, goalId) => {
@@ -59,6 +75,7 @@ function CurrentGoals() {
 
   useEffect(() => {
     fetchCurrentGoals(); 
+    fetchStartedActivitiesCount();
   }, [showAddActivityModal, showActivityDetailsModal]);
   
 
@@ -77,6 +94,7 @@ function CurrentGoals() {
   
   const handleAddActivity = () => {
     fetchCurrentGoals();
+    fetchStartedActivitiesCount();
     setShowAddActivityModal(true);
  
   };
@@ -90,6 +108,7 @@ function CurrentGoals() {
   const handleCancelActivity = () => {
     setShowAddActivityModal(false);
     fetchCurrentGoals();
+    fetchStartedActivitiesCount();
   };
 
   const handleGoalClick = async (goalId) => {
@@ -152,6 +171,7 @@ function CurrentGoals() {
           alert('Goal added successfully!');
           setGoalDetails({}); 
           fetchCurrentGoals(); 
+          fetchStartedActivitiesCount();
           handleCancelGoal();
         }
       })
@@ -177,6 +197,7 @@ function CurrentGoals() {
     
           alert('Activity started successfully!');
           fetchCurrentGoals(); 
+          fetchStartedActivitiesCount();
           setShowActivityDetailsModal(false); 
         }
       })
@@ -192,6 +213,7 @@ function CurrentGoals() {
   const handleCancelGoal = () => {
     setShowGoalDetailsModal(false); 
     fetchCurrentGoals();
+    fetchStartedActivitiesCount();
   };
 
   const handleSaveYear = () => {
@@ -212,6 +234,7 @@ function CurrentGoals() {
       if (data && data.message) {
         alert(data.message);
         fetchCurrentGoals(); 
+        fetchStartedActivitiesCount();
       } else {
         alert('A valid year is required');
       }
@@ -243,6 +266,7 @@ function CurrentGoals() {
         alert('Activity removed successfully');
         setShowActivityDetailsModal(false);
         fetchCurrentGoals(); 
+        fetchStartedActivitiesCount();
       } else {
         alert('Failed to remove activity');
       }
@@ -276,7 +300,11 @@ function CurrentGoals() {
                           onMouseEnter={e => e.currentTarget.style.color = '#00ADB5'}
                           onMouseLeave={e => e.currentTarget.style.color = '#EEEEEE'}>
                           {goal.goal}
+                          <p className="text-emerald-300 text-sm  italic">
+        Activities started : {startedActivitiesCount[goal.id] || 0} 
+      </p>
                         </div>
+                      
                         {goal.activities && goal.activities.length > 0 ? (
                           <ul className="list-disc ml-8">
                             {goal.activities.map((activity, index) => (
