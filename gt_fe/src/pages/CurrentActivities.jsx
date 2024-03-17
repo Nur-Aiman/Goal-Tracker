@@ -96,6 +96,39 @@ function CurrentActivities() {
       alert('Error marking activity as completed');
     });
   };
+
+  const handleAddToGoogleCalendar = () => {
+    if (!selectedActivity || !selectedActivity.id) {
+      console.error("No selected activity or activity ID not found");
+      return;
+    }
+
+    const activityId = selectedActivity.id;
+    fetch(`${HOST}/goal/updateScheduledStatus/${activityId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message) {
+        console.log(data.message); 
+        alert('Activity scheduled status updated successfully!');
+        setShowActivityModal(false);
+        fetchActivities(); 
+      } else {
+        console.error('Failed to update scheduled status');
+        alert('Failed to update scheduled status');
+      }
+    })
+    .catch(error => {
+      console.error('Error updating scheduled status:', error);
+      alert('Error updating scheduled status');
+    });
+};
+
+  
   
 
   const activitiesByCategory = activities.reduce((acc, activity) => {
@@ -117,13 +150,19 @@ function CurrentActivities() {
           <div key={category}>
             <h2 className="text-3xl font-semibold mb-2" style={{ color: '#F8DE22' }}>{category}</h2>
             {activities.map((activity, idx) => (
-              <div key={activity.id} onClick={() => handleActivityClick(activity)} className="cursor-pointer" style={{ transition: 'background-color 0.3s', padding: '15px', margin: '10px 0', borderRadius: '5px', fontSize: '1.25rem' }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#393E46'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                <p style={{ color: '#EEEEEE', margin: '0 0 5px 0' }}>{`${idx + 1}. ${activity.activity}`}</p>
-                <p style={{ color: '#AAAAAA', fontSize: '1rem' }}>Associated Goal: {activity.goal}</p>
-              </div>
-            ))}
+  <div key={activity.id} onClick={() => handleActivityClick(activity)} className="cursor-pointer" style={{ transition: 'background-color 0.3s', padding: '15px', margin: '10px 0', borderRadius: '5px', fontSize: '1.25rem' }}
+    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#393E46'}
+    onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+    <p style={{ color: '#EEEEEE', margin: '0 0 5px 0' }}>
+      {`${idx + 1}. ${activity.activity} `}
+      <span className='text-emerald-300 text-sm italic' >
+        {activity.scheduled === 'yes' ? '(Scheduled on GC)' : ''}
+      </span>
+    </p>
+    <p style={{ color: '#AAAAAA', fontSize: '1rem' }}>Associated Goal: {activity.goal}</p>
+  </div>
+))}
+
           </div>
         ))
       ) : (
@@ -135,7 +174,8 @@ function CurrentActivities() {
           onClose={() => setShowActivityModal(false)}
           onContinueLater={() => handlePostponeActivity(selectedActivity.id)}
           onMarkAsCompleted={() => handleMarkAsCompleted(selectedActivity.id)}
-        />
+          onAddToGoogleCalendar={() => handleAddToGoogleCalendar()}
+          />
       )}
       <HomeButton />
     </div>

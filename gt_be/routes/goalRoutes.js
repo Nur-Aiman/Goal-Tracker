@@ -1,5 +1,5 @@
 var express = require('express');
-const { addYear, addGoal, getYear, viewGoals, viewGoal, viewGoalsByYear, startGoal, currentGoals, postponeGoal, addActivity, startActivity, currentActivities, postponeActivity, editGoal, deleteGoal, deleteActivity, viewGoalsWithStartedActivitiesCount, completeActivity, completedActivities } = require('../controller/goalController');
+const { addYear, addGoal, getYear, viewGoals, viewGoal, viewGoalsByYear, startGoal, currentGoals, postponeGoal, addActivity, startActivity, currentActivities, postponeActivity, editGoal, deleteGoal, deleteActivity, viewGoalsWithStartedActivitiesCount, completeActivity, completedActivities, updateScheduledStatus } = require('../controller/goalController');
 
 var router = express.Router();
 
@@ -22,7 +22,7 @@ router.delete('/deleteActivity/:id', deleteActivity)
 router.get('/goalsWithStartedActivitiesCount', viewGoalsWithStartedActivitiesCount)
 router.put('/completeActivity/:id',completeActivity)
 router.get('/completedActivities',completedActivities)
-
+router.put('/updateScheduledStatus/:activityId', updateScheduledStatus)
 
 
 

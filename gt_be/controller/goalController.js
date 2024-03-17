@@ -315,7 +315,7 @@ module.exports = {
   currentActivities: async function(req, res) {
     try {
       const currentActivitiesQuery = `
-        SELECT a.id, a.activity, a.category, g.goal
+        SELECT a.id, a.activity, a.category, a.scheduled, g.goal
         FROM activities a
         JOIN goals g ON a.associated_goal = g.id
         WHERE a.status = 'started'
@@ -612,5 +612,29 @@ module.exports = {
       res.status(500).json({ error: 'Error updating activity status' });
     }
   },
+
+  updateScheduledStatus: async function(req, res) {
+    const activityId = req.params.activityId;
+  // console.log(req.params)
+    console.log(activityId)
+    if (!activityId) {
+      return res.status(400).json({ error: 'Activity ID is required' });
+    }
+  
+    try {
+      const updateScheduledQuery = `
+        UPDATE activities
+        SET "scheduled" = 'yes'
+        WHERE id = $1;
+      `;
+      await pool.query(updateScheduledQuery, [activityId]);
+  
+      res.status(200).json({ message: 'Activity scheduled status updated to yes' });
+    } catch (error) {
+      console.error('Error updating scheduled status:', error.message);
+      res.status(500).json({ error: 'Error updating scheduled status' });
+    }
+  },
+  
 
 };

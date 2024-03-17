@@ -1,6 +1,11 @@
 import React from 'react';
 
-function ActivityModal({ activity, onClose, onContinueLater, onMarkAsCompleted }) {
+function ActivityModal({ activity, onClose, onContinueLater, onMarkAsCompleted, onAddToGoogleCalendar  }) {
+  
+  // const handleAddToGoogleCalendar = () => {
+  //   console.log("Add this activity to Google Calendar");
+  // };
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50  flex items-center justify-center p-4">
       <div className="bg-[#393E46] p-8 rounded w-full max-w-md" style={{ color: '#EEEEEE', border: '1px solid #00ADB5' }}>
@@ -12,7 +17,13 @@ function ActivityModal({ activity, onClose, onContinueLater, onMarkAsCompleted }
           <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded transition duration-300 ease-in-out" onClick={onClose}>Close</button>
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded transition duration-300 ease-in-out" onClick={onContinueLater}>Continue Later</button>
           <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-3 rounded transition duration-300 ease-in-out" onClick={onMarkAsCompleted}>Mark as Completed</button>
+  
         </div>
+        <div className="flex justify-center">
+        <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-3 mt-2 rounded transition duration-300 ease-in-out" onClick={onAddToGoogleCalendar}>Add to Google Calendar</button>
+
+        </div>
+
       </div>
     </div>
   );
