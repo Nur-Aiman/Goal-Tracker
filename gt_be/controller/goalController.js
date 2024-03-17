@@ -312,31 +312,6 @@ module.exports = {
     }
   },
 
-  startActivity: async function(req, res) {
-    const activityId = req.params.id; 
-  
-    try {
- 
-      const startActivityQuery = `
-        UPDATE activities
-        SET status = 'started'
-        WHERE id = $1 AND status = 'pending';
-      `;
-      const result = await pool.query(startActivityQuery, [activityId]);
-  
-   
-      if (result.rowCount > 0) {
-        res.status(200).json({ message: 'Activity status updated to started' });
-      } else {
-        res.status(404).json({ message: 'Activity not found or already started' });
-      }
-    } catch (error) {
- 
-      console.error('Error updating activity status:', error.message);
-      res.status(500).json({ error: 'Error updating activity status' });
-    }
-  },
-
   currentActivities: async function(req, res) {
     try {
       const currentActivitiesQuery = `
@@ -357,6 +332,40 @@ module.exports = {
       res.status(500).json({ error: 'Error fetching activities' });
     }
   },
+
+  completedActivities: async function(req, res) {
+    try {
+        const viewCompletedActivitiesQuery = `
+            SELECT 
+                a.id, 
+                a.activity, 
+                a.category, 
+                g.goal, 
+                y.year_id AS year
+            FROM 
+                activities a
+            JOIN 
+                goals g ON a.associated_goal = g.id
+            JOIN 
+                years y ON g.year = y.year_id
+            WHERE 
+                a.status = 'completed'
+            ORDER BY 
+                y.year_id, a.category, a.id ASC;
+        `;
+        const result = await pool.query(viewCompletedActivitiesQuery);
+        if (result.rows.length > 0) {
+            res.status(200).json(result.rows);
+        } else {
+            res.status(404).json({ message: 'No completed activities found' });
+        }
+    } catch (error) {
+        console.error('Error fetching completed activities:', error.message);
+        res.status(500).json({ error: 'Error fetching completed activities' });
+    }
+},
+
+  
 
   postponeActivity: async function(req, res) {
     const activityId = req.params.id; 
@@ -551,6 +560,57 @@ module.exports = {
       res.status(500).json({ error: 'Error fetching goals with started activities count' });
     }
   },
+
+
+  startActivity: async function(req, res) {
+    const activityId = req.params.id; 
   
+    try {
+ 
+      const startActivityQuery = `
+        UPDATE activities
+        SET status = 'started'
+        WHERE id = $1 AND status = 'pending';
+      `;
+      const result = await pool.query(startActivityQuery, [activityId]);
   
+   
+      if (result.rowCount > 0) {
+        res.status(200).json({ message: 'Activity status updated to started' });
+      } else {
+        res.status(404).json({ message: 'Activity not found or already started' });
+      }
+    } catch (error) {
+ 
+      console.error('Error updating activity status:', error.message);
+      res.status(500).json({ error: 'Error updating activity status' });
+    }
+  },
+
+  completeActivity: async function(req, res) {
+    const activityId = req.params.id;  // Get the activity ID from the request parameters
+
+    if (!activityId) {
+      return res.status(400).json({ error: 'Activity ID is required' });
+    }
+
+    try {
+      const completeActivityQuery = `
+        UPDATE activities
+        SET status = 'completed'
+        WHERE id = $1 AND status = 'started';
+      `;
+      const result = await pool.query(completeActivityQuery, [activityId]);
+
+      if (result.rowCount > 0) {
+        res.status(200).json({ message: 'Activity status updated to completed' });
+      } else {
+        res.status(404).json({ message: 'Activity not found or not in started status' });
+      }
+    } catch (error) {
+      console.error('Error updating activity status:', error.message);
+      res.status(500).json({ error: 'Error updating activity status' });
+    }
+  },
+
 };

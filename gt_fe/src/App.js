@@ -6,6 +6,7 @@ import LongTermGoals from './pages/LongTermGoals';
 import CurrentYearGoals from './pages/CurrentYearGoals';
 import CurrentGoals from './pages/CurrentGoals';
 import CurrentActivities from './pages/CurrentActivities';
+import CompletedActivities from './pages/CompletedActivities';
 
 
 function App() {
@@ -29,6 +30,10 @@ function App() {
     {
       path: '/currentActivities',
       element: <CurrentActivities />,
+    },
+    {
+      path: '/completedActivities',
+      element: <CompletedActivities />,
     },
    
     
