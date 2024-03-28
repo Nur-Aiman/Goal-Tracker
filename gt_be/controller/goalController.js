@@ -51,7 +51,6 @@ module.exports = {
   
 
   addGoal: async function(req, res) {
-
     const {
       goal,
       category,
@@ -70,46 +69,51 @@ module.exports = {
       timeBound
     } = req.body;
   
-
     const allFields = [goal, category, planStartMonth, planStartYear, planCompleteMonth, planCompleteYear, intention, why, how, year, specific, measurable, attainable, relevant, timeBound];
     if (allFields.includes(undefined) || allFields.includes('')) {
       return res.status(400).json({ error: 'All fields are required' });
     }
   
- 
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
   
-     
+      const maxSmartIdRes = await client.query('SELECT MAX(id) as maxid FROM smart');
+      const maxSmartId = maxSmartIdRes.rows[0].maxid ? parseInt(maxSmartIdRes.rows[0].maxid) : 0;
+      const nextSmartId = maxSmartId + 1;
+  
       const smartInsertQuery = `
-        INSERT INTO smart (specific, measurable, attainable, realistic, time_bound)
-        VALUES ($1, $2, $3, $4, $5) RETURNING id;
+        INSERT INTO smart (id, specific, measurable, attainable, realistic, time_bound)
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;
       `;
-      const smartRes = await client.query(smartInsertQuery, [specific, measurable, attainable, relevant, timeBound]);
+      const smartRes = await client.query(smartInsertQuery, [nextSmartId, specific, measurable, attainable, relevant, timeBound]);
       const smartId = smartRes.rows[0].id;
   
-
+      const maxGoalIdRes = await client.query('SELECT MAX(id) as maxid FROM goals');
+      const maxGoalId = maxGoalIdRes.rows[0].maxid ? parseInt(maxGoalIdRes.rows[0].maxid) : 0;
+      const nextGoalId = maxGoalId + 1;
+  
       const goalsInsertQuery = `
-    INSERT INTO goals (goal, category, plan_start, plan_end, intention, why, how, year, status, smart_id, activities)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', $9, $10);
-  `;
-  const planStart = `${planStartYear}-${planStartMonth}-01`; 
-  const planEnd = `${planCompleteYear}-${planCompleteMonth}-01`; 
-  const defaultActivities = []; 
-
-  await client.query(goalsInsertQuery, [
-    goal,
-    category,
-    planStart,
-    planEnd,
-    intention,
-    why,
-    how,
-    year,
-    smartId,
-    defaultActivities
-  ]);
+        INSERT INTO goals (id, goal, category, plan_start, plan_end, intention, why, how, year, status, smart_id, activities)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', $10, $11);
+      `;
+      const planStart = `${planStartYear}-${planStartMonth}-01`;
+      const planEnd = `${planCompleteYear}-${planCompleteMonth}-01`;
+      const defaultActivities = [];
+  
+      await client.query(goalsInsertQuery, [
+        nextGoalId,
+        goal,
+        category,
+        planStart,
+        planEnd,
+        intention,
+        why,
+        how,
+        year,
+        smartId,
+        defaultActivities
+      ]);
   
       await client.query('COMMIT');
       res.status(201).json({ message: 'Goal and SMART criteria added successfully' });
@@ -121,6 +125,7 @@ module.exports = {
       client.release();
     }
   },
+  
 
   viewGoals: async function(req, res) {
     try {
@@ -278,31 +283,35 @@ module.exports = {
 
   addActivity: async function(req, res) {
     const { activity, category, goalId } = req.body;
-
+  
     if (!activity || !category || !goalId) {
       return res.status(400).json({ error: 'All fields are required' });
     }
-
+  
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
-
+  
+      const maxIdRes = await client.query('SELECT MAX(id) as maxid FROM activities');
+      const maxId = maxIdRes.rows[0].maxid ? parseInt(maxIdRes.rows[0].maxid) : 0;
+      const nextId = maxId + 1;
+  
       const insertActivityQuery = `
-        INSERT INTO activities (activity, category, associated_goal, status)
-        VALUES ($1, $2, $3, 'pending') RETURNING id;
+        INSERT INTO activities (id, activity, category, associated_goal, status)
+        VALUES ($1, $2, $3, $4, 'pending') RETURNING id;
       `;
-      const activityRes = await client.query(insertActivityQuery, [activity, category, goalId]);
+      const activityRes = await client.query(insertActivityQuery, [nextId, activity, category, goalId]);
       const activityId = activityRes.rows[0].id;
-
+  
       const updateGoalsQuery = `
         UPDATE goals
         SET activities = array_append(activities, $1)
         WHERE id = $2;
       `;
       await client.query(updateGoalsQuery, [activityId, goalId]);
-
+  
       await client.query('COMMIT');
-      res.status(201).json({ message: 'Activity added successfully' });
+      res.status(201).json({ message: 'Activity added successfully', id: activityId });
     } catch (error) {
       await client.query('ROLLBACK');
       console.error('Error executing query:', error.message);
@@ -311,6 +320,7 @@ module.exports = {
       client.release();
     }
   },
+  
 
   currentActivities: async function(req, res) {
     try {
@@ -588,7 +598,7 @@ module.exports = {
   },
 
   completeActivity: async function(req, res) {
-    const activityId = req.params.id;  // Get the activity ID from the request parameters
+    const activityId = req.params.id;  
 
     if (!activityId) {
       return res.status(400).json({ error: 'Activity ID is required' });
@@ -615,7 +625,6 @@ module.exports = {
 
   updateScheduledStatus: async function(req, res) {
     const activityId = req.params.activityId;
-  // console.log(req.params)
     console.log(activityId)
     if (!activityId) {
       return res.status(400).json({ error: 'Activity ID is required' });
