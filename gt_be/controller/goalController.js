@@ -345,35 +345,37 @@ module.exports = {
 
   completedActivities: async function(req, res) {
     try {
-        const viewCompletedActivitiesQuery = `
-            SELECT 
-                a.id, 
-                a.activity, 
-                a.category, 
-                g.goal, 
-                y.year_id AS year
-            FROM 
-                activities a
-            JOIN 
-                goals g ON a.associated_goal = g.id
-            JOIN 
-                years y ON g.year = y.year_id
-            WHERE 
-                a.status = 'completed'
-            ORDER BY 
-                y.year_id, a.category, a.id ASC;
-        `;
-        const result = await pool.query(viewCompletedActivitiesQuery);
-        if (result.rows.length > 0) {
-            res.status(200).json(result.rows);
-        } else {
-            res.status(404).json({ message: 'No completed activities found' });
-        }
+      const viewCompletedActivitiesQuery = `
+        SELECT 
+          a.id, 
+          a.activity, 
+          a.category, 
+          g.goal, 
+          g.id as goalId,  
+          y.year_id AS year
+        FROM 
+          activities a
+        JOIN 
+          goals g ON a.associated_goal = g.id
+        JOIN 
+          years y ON g.year = y.year_id
+        WHERE 
+          a.status = 'completed'
+        ORDER BY 
+          y.year_id, a.category, a.id ASC;
+      `;
+      const result = await pool.query(viewCompletedActivitiesQuery);
+      if (result.rows.length > 0) {
+        res.status(200).json(result.rows);
+      } else {
+        res.status(404).json({ message: 'No completed activities found' });
+      }
     } catch (error) {
-        console.error('Error fetching completed activities:', error.message);
-        res.status(500).json({ error: 'Error fetching completed activities' });
+      console.error('Error fetching completed activities:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
-},
+  },
+  
 
   
 

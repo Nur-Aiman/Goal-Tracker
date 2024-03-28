@@ -257,25 +257,28 @@ function CurrentGoals() {
   };
 
   const handleRemoveActivity = (activityId) => {
-    fetch(`${HOST}/goal/deleteActivity/${activityId}`, {
-      method: 'DELETE',
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.message) {
-        alert('Activity removed successfully');
-        setShowActivityDetailsModal(false);
-        fetchCurrentGoals(); 
-        fetchStartedActivitiesCount();
-      } else {
-        alert('Failed to remove activity');
-      }
-    })
-    .catch(error => {
-      console.error('Error removing activity:', error);
-      alert('Error removing activity');
-    });
+    if (window.confirm('Are you sure you want to remove this activity?')) {
+      fetch(`${HOST}/goal/deleteActivity/${activityId}`, {
+        method: 'DELETE',
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          alert('Activity removed successfully');
+          setShowActivityDetailsModal(false);
+          fetchCurrentGoals(); 
+          fetchStartedActivitiesCount();
+        } else {
+          alert('Failed to remove activity');
+        }
+      })
+      .catch(error => {
+        console.error('Error removing activity:', error);
+        alert('Error removing activity');
+      });
+    }
   };
+  
   
 
   return (
