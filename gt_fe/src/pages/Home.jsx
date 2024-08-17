@@ -24,7 +24,7 @@ function Home() {
 }} />
 
 <div className="flex flex-col gap-4">
-  {['/currentActivities', '/currentGoals', '/currentYearGoals', '/longTermGoals', 'showUnderConstructionMessage', '/completedActivities'].map((path, index) => (
+  {['/currentActivities', '/currentGoals', '/currentYearGoals', '/longTermGoals', '/completedGoals', '/completedActivities'].map((path, index) => (
     <button
       key={index}
       className="text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110"

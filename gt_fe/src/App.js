@@ -7,6 +7,7 @@ import CurrentYearGoals from './pages/CurrentYearGoals';
 import CurrentGoals from './pages/CurrentGoals';
 import CurrentActivities from './pages/CurrentActivities';
 import CompletedActivities from './pages/CompletedActivities';
+import CompletedGoals from './pages/CompletedGoals';
 
 
 function App() {
@@ -34,6 +35,10 @@ function App() {
     {
       path: '/completedActivities',
       element: <CompletedActivities />,
+    },
+    {
+      path: '/completedGoals',
+      element: <CompletedGoals />,
     },
    
     

@@ -646,6 +646,57 @@ module.exports = {
       res.status(500).json({ error: 'Error updating scheduled status' });
     }
   },
+
+
+  completeGoal: async function(req, res) {
+    const goalId = req.params.id;
+
+    if (!goalId) {
+      return res.status(400).json({ error: 'Goal ID is required' });
+    }
+
+    try {
+      
+      const completeGoalQuery = `
+        UPDATE goals
+        SET status = 'completed'
+        WHERE id = $1 AND status = 'started';
+      `;
+      const result = await pool.query(completeGoalQuery, [goalId]);
+
+      if (result.rowCount > 0) {
+        res.status(200).json({ message: 'Goal status updated to completed' });
+      } else {
+        res.status(404).json({ message: 'Goal not found or not in started status' });
+      }
+    } catch (error) {
+      console.error('Error updating goal status:', error.message);
+      res.status(500).json({ error: 'Error updating goal status' });
+    }
+}, 
+
+getCompletedGoals: async function (req, res) {
+  try {
+    const query = `
+      SELECT g.*, s.specific, s.measurable, s.attainable, s.realistic, s.time_bound 
+      FROM goals g 
+      JOIN smart s ON g.smart_id = s.id
+      WHERE g.status = 'completed'
+      ORDER BY g.category ASC, g.id ASC;
+    `;
+    const result = await pool.query(query);
+
+    if (result.rows.length > 0) {
+      res.status(200).json(result.rows);
+    } else {
+      res.status(404).json({ message: 'No completed goals found' });
+    }
+  } catch (error) {
+    console.error('Error fetching completed goals:', error.message);
+    res.status(500).json({ error: 'Error fetching completed goals' });
+  }
+}
+
   
 
 };

@@ -133,9 +133,23 @@ function GoalDetails({ onSave, onCancel, setGoalDetails, goalDetails, mode, curr
   };
 
   const handleMarkAsCompleted = async () => {
-    console.log('Mark as Completed clicked');
-   
+    try {
+      const response = await fetch(`${HOST}/goal/completeGoal/${goalDetails.id}`, {
+        method: 'PUT',
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert('Goal marked as completed successfully!');
+        onCancel();
+      } else {
+        alert(`Failed to mark goal as completed: ${data.message}`);
+      }
+    } catch (error) {
+      console.error('Failed to mark goal as completed:', error);
+      alert(`Failed to mark goal as completed: ${error.message}`);
+    }
   };
+  
 
   const startGoal = async () => {
     try {
@@ -332,7 +346,13 @@ function GoalDetails({ onSave, onCancel, setGoalDetails, goalDetails, mode, curr
         <>
           <button className="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded" onClick={postponeGoal}>Continue Later</button>
           <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={onCancel}>Cancel</button>
-          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onClick={handleMarkAsCompleted}>Mark as Completed</button>
+          <button
+  className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+  onClick={handleMarkAsCompleted}
+>
+  Mark as Completed
+</button>
+
         </>
       )}
     </>
